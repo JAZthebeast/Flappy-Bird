@@ -32,7 +32,7 @@ ground = pg.transform.scale(pg.image.load("Assets/ground.png"), (500, 50))
 background = pg.transform.scale(pg.image.load("Assets/background.png"), (500, 450))
 inFont = pg.font.Font("Assets/TextFont/8-bit Arcade In.ttf", 80)
 outFont = pg.font.Font("Assets/TextFont/8-bit Arcade Out.ttf", 80)
-#Initializes Sprite Class
+#Initializes Bird Sprite Class
 class Bird (pg.sprite.Sprite):
 	def __init__(self, picture):
 		super().__init__()
@@ -47,7 +47,7 @@ class Bird (pg.sprite.Sprite):
 		elif ySpeed < 10:
 			self.rotation = 20 + ySpeed * -5
 		self.image = pg.transform.rotate(self.picture, self.rotation)
-		
+#Initiaizes Pipe Sprite Class
 class Pipe (pg.sprite.Sprite):
 	def __init__(self, picture):
 		super().__init__()
@@ -55,12 +55,6 @@ class Pipe (pg.sprite.Sprite):
 		self.image = picture
 		self.rect = self.image.get_rect()
 		self.mask = pg.mask.from_surface(self.image)
-
-def drawPipe (i, pipePos):
-	pipe = Pipe(pipePic)
-	pipe.rect.x = pipePos[i][0]
-	pipe.rect.y = pipePos[i][1]
-	pipe_group.add(pipe)
 #Makes Pipe Pictures One Picture
 pipePic = pg.Surface((50, 7000))
 pipePic.blit(upPipePic, (0, 400))
@@ -71,8 +65,9 @@ bird = Bird(birdPic)
 bird_group.add(bird)
 #Groups Pipe Sprites
 pipe_group = pg.sprite.Group()
-pipe = Pipe(pipePic)
-pipe_group.add(pipe)
+for i in range(3):
+	pipe = Pipe(pipePic)
+	pipe_group.add(pipe)
 #Main Game Loop
 while running:
 	#Initializes Frame Rate
@@ -110,7 +105,7 @@ while running:
 	pipeGap += movement
 	#Spawns A New Pipe If Distance Between Them Is Great Enough
 	if pipeGap == 200:
-		pipePos.append([500, random.randrange(-200, 0, 10)])
+		pipePos.append([500, random.randrange(-250, 0, 10)])
 		#Resets Distance Counter
 		pipeGap = 0
 	#Deletes Pipe If It Is Off Screen
@@ -123,10 +118,14 @@ while running:
 	#Moves Bird Sprite Based Off Of Its Proper Position
 	bird.rect.x = birdPos[0]
 	bird.rect.y = birdPos[1]
-	#THIS NEEDS OPTIMIZED
-	pipe_group.empty()
-	for i in range(len(pipePos)):
-		drawPipe(i, pipePos)
+	#Moves Pipes
+	j = 0
+	for i in pipe_group.sprites():
+		if j > len(pipePos) - 1:
+			j = len(pipePos) - 1
+		i.rect.x = pipePos[0 + j][0]
+		i.rect.y = pipePos[0 + j][1]
+		j += 1
 	#Detects Collision Between The Pipes And Bird
 	collision = pg.sprite.spritecollide(bird, pipe_group, False, pg.sprite.collide_mask)
 	if collision:
@@ -161,3 +160,6 @@ while running:
 	pg.display.update()
 	bird_group.update()
 	pipe_group.update()
+#Quits Everything
+pg.display.quit()
+pg.quit()
